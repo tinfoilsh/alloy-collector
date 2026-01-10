@@ -1,0 +1,17 @@
+// Alloy config for collecting Docker logs and sending to Loki
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+loki.source.docker "default" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.containers.targets
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "https://loki.control.tinfoil.sh/loki/api/v1/push"
+  }
+}
